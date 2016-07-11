@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8"/>
+        <title><%= title %></title>
+        <meta http-equiv = "X-UA-Compatible" content = "IE=edge">
+        <meta content = "width=device-width, initial-scale=1" name = "viewport"/>
+        <meta content = "" name = "description"/>
+        <meta content = "" name = "author"/>
+        <!-- Latest compiled and minified CSS -->
+        <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity = "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin = "anonymous">
+        <!-- Optional theme -->
+        <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity = "sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin = "anonymous">
+        <!-- Latest compiled and minified JavaScript -->
+        <link rel = 'stylesheet' href = '/stylesheets/style.css'/>
+
+    </head>
+
+    <body ng-app = "myApp" ng-controller = "myAppControllers">
+        <div class = "container">
+            <div class = "row">
+                <div class = "col-md-12">
+                    <textarea ng-model = "formData.inputField" class = "form-control" rows = "5" style = "resize:none; font-family: monospace; font-size: 25px"></textarea>
+
+                    <div align = "center" style = "margin-top: 20px">
+                        <button type = "button" class = "btn btn-primary" ng-click = "submit()">ประมูล</button>
+                    </div>
+                </div>
+                <div class = "col-md-12" style = "margin-top: 20px" ng-show = "finalInput.length > 0">
+                    <table class = "table table-striped" border = "1" style = "font-family: monospace; font-size: 25px">
+                        <thead>
+                            <tr>
+                                <th class = "primary" style = "text-align: center">ข้อมูลที่ป้อนมา</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{format(finalInput).string1}}<br><br>{{format(finalInput).string2}}<br><br>{{format(finalInput).string3}}</td>
+                            </tr>
+                        </thead>
+                    </table>
+
+                </div>
+                <div class = "col-md-12" style = "margin-top: 20px" ng-show="finalResult">
+                    <div align = "center">
+                        <table class = "table table-striped" border = "1" style = "font-family: monospace; font-size: 25px">
+                            <thead>
+                                <tr>
+                                    <th class = "success" style = "text-align: center">ผิด</th>
+                                    <th style = "text-align: center">เลข</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat = "(key, value) in finalResult">
+                                    <td class = "success" style = "vertical-align: middle; text-align: center">{{key}}</td>
+                                    <td style = "white-space:pre-wrap">{{format(value).string1}}<br><br>{{format(value).string2}}<br><br>{{format(value).string3}}</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src = "//code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src = "//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script>
+        angular.module('myApp', ['myAppControllers']);
+        var myAppControllers = angular.module('myAppControllers', []);
+
+        myAppControllers.controller('myAppControllers', ['$scope', '$http', '$filter', '$window', function ($scope, $http, $filter, $window) {
+            $scope.formData = {};
+            $scope.finalInput = [];
+            $scope.submit = function () {
+                $http.post('/', $scope.formData).success(function (object) {
+                    $scope.finalResult = object.finalResult;
+                    $scope.finalInput = object.finalInput;
+                });
+            };
+            $scope.format = function (value) {
+                var string1 = ''; //abc
+                var string2 = ''; //aab
+                var string3 = ''; //aaa
+                // var string = '';
+                for (var i = 0; i < value.length; i++) {
+                    var setMap = {};
+                    for (var j = 0; j < value[i].length; j++) {
+                        setMap[value[i].charAt(j)] = true;
+                    }
+                    if (Object.keys(setMap).length == value[i].length) {
+                        string1 = string1 + value[i] + '\t';
+                    } else if (Object.keys(setMap).length == 1) {
+                        string3 = string3 + value[i] + '\t';
+                    } else {
+                        string2 = string2 + value[i] + '\t';
+                    }
+
+                }
+                return {
+                    string1: string1,
+                    string2: string2,
+                    string3: string3
+                };
+            }
+        }]);
+    </script>
+</html>
