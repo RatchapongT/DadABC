@@ -8,10 +8,12 @@
         <meta content = "" name = "description"/>
         <meta content = "" name = "author"/>
         <!-- Latest compiled and minified CSS -->
+        <link href = "//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda-themeless.min.css" rel = "stylesheet"/>
         <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity = "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin = "anonymous">
         <!-- Optional theme -->
         <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity = "sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin = "anonymous">
         <!-- Latest compiled and minified JavaScript -->
+        <link href = "//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.2/toastr.min.css" rel = "stylesheet"/>
         <link rel = 'stylesheet' href = '/stylesheets/style.css'/>
 
     </head>
@@ -23,7 +25,14 @@
                     <textarea ng-model = "formData.inputField" class = "form-control" rows = "5" style = "resize:none; font-family: monospace; font-size: 25px"></textarea>
 
                     <div align = "center" style = "margin-top: 20px">
-                        <button type = "button" class = "btn btn-primary" ng-click = "submit()">ประมูล</button>
+                        <button id = "submitButton" type = "submit" ng-click = "submit()" class = "btn uppercase mt-ladda-btn ladda-button" style = "background-color: green;color: white" data-style = "expand-right" data-size = "l">
+                            <span class = "ladda-label">ประเมิน</span>
+                        </button>
+
+                        <button id = "clearButton" type = "submit" ng-click = "clear()" class = "btn uppercase mt-ladda-btn ladda-button" style = "background-color: red;color: white" data-style = "expand-right" data-size = "l">
+                            <span class = "ladda-label">
+เคลียร์</span>
+                        </button>
                     </div>
                 </div>
                 <div class = "col-md-12" style = "margin-top: 20px" ng-show = "finalInput.length > 0">
@@ -41,7 +50,7 @@
                     </table>
 
                 </div>
-                <div class = "col-md-12" style = "margin-top: 20px" ng-show="finalResult">
+                <div class = "col-md-12" style = "margin-top: 20px" ng-show = "finalResult">
                     <div align = "center">
                         <table class = "table table-striped" border = "1" style = "font-family: monospace; font-size: 25px">
                             <thead>
@@ -65,19 +74,52 @@
     <script src = "//code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src = "//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src = "//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.2/toastr.min.js"></script>
+    <script src = "//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/spin.min.js"></script>
+    <script src = "//cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.0/ladda.min.js"></script>
     <script>
         angular.module('myApp', ['myAppControllers']);
         var myAppControllers = angular.module('myAppControllers', []);
 
         myAppControllers.controller('myAppControllers', ['$scope', '$http', '$filter', '$window', function ($scope, $http, $filter, $window) {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "positionClass": "toast-bottom-right",
+                "onclick": null,
+                "showDuration": "1000",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
+            var submitButton = document.querySelector('#submitButton') ? Ladda.create(document.querySelector('#submitButton')) : null;
+
             $scope.formData = {};
             $scope.finalInput = [];
+            $scope.finalResult = [];
             $scope.submit = function () {
+
+                submitButton.start();
                 $http.post('/', $scope.formData).success(function (object) {
+                    $scope.finalInput = [];
+                    $scope.finalResult = [];
                     $scope.finalResult = object.finalResult;
                     $scope.finalInput = object.finalInput;
+                    toastr.success("สำเร็จ", "Success")
+                    submitButton.stop();
                 });
             };
+            $scope.clear = function () {
+                $scope.formData = {};
+                $scope.finalInput = [];
+                $scope.finalResult = [];
+                toastr.success("เคลียร์สำเร็จ", "Success")
+            }
             $scope.format = function (value) {
                 var string1 = ''; //abc
                 var string2 = ''; //aab
