@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class = "col-md-12" style = "margin-top: 20px" ng-show = "finalInput.length > 0">
-                    <table class = "table table-striped" border = "1" style = "font-family: monospace; font-size: 25px">
+                    <table id = "finalInputTable" class = "table table-striped bigTable" border = "1">
                         <thead>
                             <tr>
                                 <th class = "primary" style = "text-align: center">ข้อมูลที่ป้อนมา</th>
@@ -52,7 +52,7 @@
                 </div>
                 <div class = "col-md-12" style = "margin-top: 20px" ng-show = "finalResult">
                     <div align = "center">
-                        <table datatable = "ng" border = "1" style = "font-family: monospace; font-size: 25px" class = "datable-vertical-align table table-striped table-bordered table-hover order-column" dt-options = "dtOptions" width = "100%">
+                        <table id = "finalResultTable" datatable = "ng" border = "1" style = "font-family: monospace; font-size: 25px" class = "datable-vertical-align table table-striped table-bordered table-hover order-column" dt-options = "dtOptions" width = "100%">
                             <thead>
                                 <tr>
                                     <th class = "success" style = "text-align: center">ผิด</th>
@@ -105,7 +105,21 @@
                     .withOption('paging', false)
                     .withLanguageSource(languageSource)
                     .withButtons([
-                        'print'
+                        {
+                            extend: 'print',
+                            customize: function (win) {
+                                $(win.document.body)
+                                        .css( 'font-size', '10pt' )
+                                        .prepend(
+                                        $scope.format( $scope.finalInput).string1 +
+                                        '<br><br>' +
+                                        $scope.format( $scope.finalInput).string2 +
+                                        '<br><br>' +
+                                        $scope.format( $scope.finalInput).string3 );
+
+
+                            }
+                        }
                     ]);
             var submitButton = document.querySelector('#submitButton') ? Ladda.create(document.querySelector('#submitButton')) : null;
 
